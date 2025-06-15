@@ -17,19 +17,17 @@ class Ant:
 
         # Movement in pixels
         movement = direction_vector * speed * delta_time
+        old_position = self.position.copy()
         self.position += movement
-
-        # Stay within screen bounds
-        self.position[0] = np.clip(self.position[0], 0, 1175)
-        self.position[1] = np.clip(self.position[1], 0, 675)
+        if self.position[0] < 0 or self.position[0] > 1175 or self.position[1] < 0 or self.position[1] > 675:
+            # If the ant goes out of bounds, revert to old position
+            self.position = old_position
+            # Reverse direction
+            self.angle = (self.angle + 180) % 360
 
         # Random change in angle
         self.angle += np.random.randint(-5, 6)
         self.angle %= 360  # Keep angle in range
-
-        if self.position[0] < 0 or self.position[0] > 1175 or self.position[1] < 0 or self.position[1] > 675:
-            # If the ant goes out of bounds, 90-degree turn
-            self.angle = (self.angle + 180) % 360
 
     def update_pheromones(ants, evaporation=0.5, Q=100.0):
         pass
