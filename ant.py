@@ -12,6 +12,9 @@ class Ant:
         self.objects_found = {}
 
     def move(self, delta_time, speed=200):  # speed = pixels per second
+        # Random change in angle
+        self.angle += np.random.randint(-5, 6)
+        self.angle %= 360  # Keep angle in range
         # Movement direction based on angle
         direction_vector = np.array([np.cos(np.radians(self.angle)), np.sin(np.radians(self.angle))])
 
@@ -25,10 +28,6 @@ class Ant:
             # Reverse direction
             self.angle = (self.angle + 180) % 360
 
-        # Random change in angle
-        self.angle += np.random.randint(-5, 6)
-        self.angle %= 360  # Keep angle in range
-
     def update_pheromones(ants, evaporation=0.5, Q=100.0):
         pass
 
@@ -36,8 +35,8 @@ class Ant:
         # create an ant from the sprite that i downloaded
         # and draw it to the screen at position (100, 100)
         ant_image = pygame.image.load("ant.png").convert_alpha()  # Load the ant image
-        ant_image = pygame.transform.scale(ant_image, (50, 50))  # Scale the image to a suitable size
-        ant_image = pygame.transform.rotate(ant_image, (self.angle - 90) % 360)  # Rotate the image based on the ant's angle
+        ant_image = pygame.transform.scale(ant_image, (25, 25))  # Scale the image to a suitable size
+        ant_image = pygame.transform.rotate(ant_image, (self.angle - 90) * -1 + 180)  # Rotate the image based on the ant's angle
         ant_rect = ant_image.get_rect(topleft=self.position)  # Create a rect for positioning
 
         screen.blit(ant_image, ant_rect)  # Draw the ant image to the screen
