@@ -9,6 +9,9 @@ screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 running = True
 
+def update_pheromones(evaporation=0.5):
+    pass
+
 my_ant = ant.Ant()
 # generate 10 random coordinates for the circles
 circles_positions = [(np.random.randint(20, 1260), np.random.randint(20, 700)) for _ in range(10)]
@@ -17,6 +20,10 @@ for i in range(len(circles_positions)):
     for j in range(i + 1, len(circles_positions)):
         while np.linalg.norm(np.array(circles_positions[i]) - np.array(circles_positions[j])) < 40:
             circles_positions[j] = (np.random.randint(20, 1260), np.random.randint(20, 700))
+
+circles = [pygame.Rect(pos[0] - 20, pos[1] - 20, 40, 40) for pos in circles_positions]
+ferormones_explore = []
+ferormones_food = []
 
 while running:
     # poll for events
@@ -34,9 +41,19 @@ while running:
 
     # RENDER YOUR GAME HERE
     # create an instance of the Ant class
-    my_ant.move(delta_time)  # Move the ant
-    my_ant.draw(screen)  # Draw the ant on the screen
+    new_pheromone = my_ant.draw_update(screen, delta_time)  # Move the ant and draw it on the screen
+    if new_pheromone.type == 0:
+        ferormones_explore.append(new_pheromone)
+    elif new_pheromone.type == 1:
+        ferormones_food.append(new_pheromone)
 
+    # Update and draw pheromones
+    for pheromone in ferormones_explore + ferormones_food:
+        if pheromone.is_active():
+            pheromone.draw_update(screen, delta_time)
+    # Remove inactive pheromones
+    ferormones_explore = [p for p in ferormones_explore if p.is_active()]
+    ferormones_food = [p for p in ferormones_food if p.is_active()]
 
     # flip() the display to put your work on screen
     pygame.display.flip()
