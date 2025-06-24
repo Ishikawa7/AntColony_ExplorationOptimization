@@ -15,7 +15,7 @@ class Ant:
         self.not_visited_map[self.position] = 0.0
         self.pheromone_value = 1000.0  # Initial pheromone value
         self.chosing_map = np.zeros((grid_size, grid_size)) + 0.0
-        self.last_path = []
+        self.last_hot_position = None
         self.direction = random.randint(0, 7)
         self.first = True
 
@@ -41,8 +41,10 @@ class Ant:
                 self.direction = possible_directions.index(action)
             else:
                 action = current_dir
+            if random.random() < 0.05:
+                self.direction = random.randint(0, 7)  # Randomly change direction
         else:
-            if random.random() < 0.1:
+            if random.random() < 0.3:
                 action = random.choice(list(actions.keys()))
             else:
                 action = max(actions, key=actions.get)
@@ -52,6 +54,22 @@ class Ant:
         # Return the new position after taking action
         new_position = (self.position[0] + action[0], self.position[1] + action[1])
         return new_position
+    
+    def create_direct_path_between(self, start, end):
+        # Create a direct path between start and end positions
+        path = []
+        x1, y1 = start
+        x2, y2 = end
+        dx = x2 - x1
+        dy = y2 - y1
+        steps = max(abs(dx), abs(dy))
+        if steps == 0:
+            return [start]
+        for i in range(steps + 1):
+            x = int(x1 + i * dx / steps)
+            y = int(y1 + i * dy / steps)
+            path.append((x, y))
+        return path
 
     def move(self, env):
         self.map_exploration[self.position] = -100.0
@@ -59,14 +77,14 @@ class Ant:
         # update
         self.chosing_map = map# + self.map_exploration# + self.not_visited_map
         self.position = self.select_action(self.chosing_map)
-        self.last_path.append(copy(self.position))
         if env.check_hot_positions(self.position):
             if self.first:
                 self.first = False
-                self.last_path = []
+                self.last_hot_position = copy(self.position)
             else:
                 # Leave pheromone on the path taken
-                env.leave_pheromone(self.last_path, self.pheromone_value/len(self.last_path))
+                direct_path = self.create_direct_path_between(self.last_hot_position, self.position)
+                env.leave_pheromone(direct_path, self.pheromone_value/len(direct_path))
                 self.last_path = []
         self.not_visited_map[self.position] = 0.0
         self.map_exploration = self.map_exploration * 0.90

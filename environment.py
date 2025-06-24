@@ -7,7 +7,7 @@ from scipy.ndimage import maximum_filter
 import threading
 
 class Environment:
-    def __init__(self, grid_size=25, n_goals=5, evaporation_rate=0.01, n_ants=100):
+    def __init__(self, grid_size=100, n_goals=5, evaporation_rate=0.0, n_ants=2000):
         self.ants = [Ant(grid_size) for _ in range(n_ants)]
         self.ants_map = np.zeros((grid_size, grid_size)) + 0.0
         for ant in self.ants:
